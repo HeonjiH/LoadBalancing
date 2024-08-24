@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using load_balancing.Service
+@inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Home</PageTitle>
 
@@ -14,26 +15,22 @@ Welcome to your new app.
         await StartUp();
     }
     public async Task StartUp()
-    {
-        var httpClientService = new HttpClientWithPolly();
+    {   
+        // ProxyClient를 사용하여 HttpClient 인스턴스를 가져옵니다.
+        var client = HttpClientFactory.CreateClient("ProxyClient");
 
-        // 요청할 URL 설정
-        string url = "/getData";
-        try
+        // GetAsync로 요청 보내기
+        var response = await client.GetAsync($"/api/Function1");
+
+        if (response.IsSuccessStatusCode)
         {
-            var data = await httpClientService.GetDataASync(url);
-            if (!string.IsNullOrEmpty(data))
-            {
-                Console.WriteLine(data);
-            }
-            else
-            {
-                Console.WriteLine("failed");
-            }
+            var data = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(data);
         }
-        catch (Exception e)
+        else
         {
-            Console.WriteLine(e.Message);
+            // 에러 처리
+            Console.WriteLine($"Error fetching data: {response.StatusCode}");
         }
     }
 }
