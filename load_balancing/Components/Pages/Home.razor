@@ -1,0 +1,39 @@
+﻿@page "/"
+@using load_balancing.Service
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        await StartUp();
+    }
+    public async Task StartUp()
+    {
+        var httpClientService = new HttpClientWithPolly();
+
+        // 요청할 URL 설정
+        string url = "/getData";
+        try
+        {
+            var data = await httpClientService.GetDataASync(url);
+            if (!string.IsNullOrEmpty(data))
+            {
+                Console.WriteLine(data);
+            }
+            else
+            {
+                Console.WriteLine("failed");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+}
